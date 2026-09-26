@@ -1,13 +1,16 @@
-# Jev runtime-governance PoC — J3/J4
+# Jev runtime-governance PoC — J3/J4/J5
 
 This isolated PoC tests whether a typed probabilistic decision component can sit
 inside a deterministic shell without becoming an authority. The sole normative
 J0–J2 specification is
 [the frozen baseline](docs/Jev_PoC_J0-J2_Integrated_Baseline_v0.1_20260926.md).
 
-Current implementation: **accepted J3 plus J4 offline failure injection**.
+Current implementation: **accepted J3/J4 plus the J5 offline repeatability layer**.
 The [frozen J4 specification](docs/Jev_PoC_J4_Failure_Injection_Spec_v0.1_20260926.md)
-bounds the failure tests. `J0_MOCK_ENTRY = PASS`;
+bounds failure injection; the
+[frozen J5 specification](docs/Jev_PoC_J5_Repeatability_Independent_Review_Spec_v0.1_20260926.md)
+bounds repeatability observation. Independent review is a separate, deferred step.
+`J0_MOCK_ENTRY = PASS`;
 `J0_LIVE_ENTRY = BLOCKED_API_KEY`. Live Jev evaluation remains blocked and is not
 authorized. The harness neither reads credentials nor imports the installed Jev
 SDK. This is not SimBench integration. No runtime permission, re-entry, execution,
@@ -36,6 +39,15 @@ Frozen Fixture → Deterministic Precheck → Provider Adapter
 - `src/failure_provider.py` supplies J4's local `FailureProvider`. It raises a
   configured exception or returns an injected invalid result without reading
   the request. HTTP status simulations are local exceptions, not HTTP calls.
+- `src/sequence_provider.py` supplies J5's `ScriptedSequenceProvider`. It consumes
+  one supplied response per call and fails explicitly on exhaustion. It never
+  reads the request and is a test instrument, not a model simulator.
+- `src/repeatability.py` runs one frozen fixture repeatedly through the unchanged
+  harness, captures actual provider-visible requests, and persists every decision
+  plus a separate group summary. `src/repeatability_analysis.py` observes variance
+  and analysis-only threshold crossings after decisions are persisted. Input drift
+  invalidates the group and suppresses stability statistics. Deterministic bypass
+  is excluded from model repeatability interpretation.
 - `src/contracts.py` validates the local `choice` contract: one allowed label,
   probabilities for all four labels, and explicit confidence/model handling.
 - `src/gate.py` permits `SUFFICIENT` to become `SEMANTIC_CHECK_PASS` only after
@@ -64,7 +76,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m src --fixture F-05 --label SUFFICIENT
 ```
 
-Skip the first command if the virtual environment already exists. J3/J4 need only
+Skip the first command if the virtual environment already exists. J3–J5 need only
 the standard library: no package installation or network access is required.
 Existing `requirements.txt` and `requirements-lock.txt` are unchanged and are not
 needed to run the mock harness. No API key setup is required.
@@ -92,8 +104,8 @@ F-07. F-05 (prohibition), F-06 (absent artifact), and F-08 (unresolved binding)
 bypass the provider. F-02/F-03 use corrected materialization version `v0.1.1` with
 new hashes and change reasons; their submitted evidence and expected labels are
 unchanged. Future fixture changes require a new version, change reason, and hash.
-Repeat groups R1–R4 are retained, including provider-eligible F-03 in R2; no
-repeatability campaign is implemented.
+Repeat groups R1–R4 are retained, including provider-eligible F-03 in R2. J5
+exercises them with scripted offline sequences; it does not measure Jev itself.
 
 The local adapter contract uses a probability object with exactly `SUFFICIENT`,
 `INSUFFICIENT`, `CONFLICTING`, and `UNCERTAIN` keys. Values must be finite numbers
@@ -116,13 +128,21 @@ produce `INVALID_RESULT` and an explicit encoding error with a null response has
 
 Tests are deterministic and offline. They write temporary records only below
 ignored `evidence/` and clean their own temporary directories. The full test
-command includes the accepted J3 suite and all twenty J4 cases, with required
-variants expressed as subtests. It prints a `J4_SUMMARY` with coverage and observed
-failure counters. The runner can stop at the first failure by adding `-f`.
+command includes the accepted J3/J4 suites, JR-01–JR-10, and J5 support checks,
+with required variants expressed as subtests. It prints `J4_SUMMARY` and
+`J5_SUMMARY` with coverage and observed invariant counters. The runner can stop
+at the first failure by adding `-f`.
 
 [J4 implementation notes](docs/J4_Implementation.md) map every JF case to its test.
 `FAIL_OPEN = 0` refers only to the tested J4 failure set and successfully returned
 or committed decisions. A computed candidate whose persistence fails is NOT
 COMMITTABLE. Retry remains OFF. These simulations make no claim about live
 provider reliability, semantic quality, or production readiness. This is not
-SimBench integration. Live Jev remains unauthorized, and J5 is not authorized.
+SimBench integration. Live Jev remains unauthorized.
+
+[J5 implementation notes](docs/J5_Implementation.md) describe the runner API,
+request identity, summary fields, and JR traceability. Analysis thresholds are
+observation cutoffs only: they are not governance thresholds, permission, or
+calibration claims. Low variance implies neither correctness, reliability, nor
+authority. Independent review must take place in a fresh session after this
+implementation is accepted; it has not been performed here. J6 is not authorized.
