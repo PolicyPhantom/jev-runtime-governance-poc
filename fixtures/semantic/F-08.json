@@ -1,0 +1,32 @@
+{
+  "fixture_id": "F-08",
+  "version": "v0.1",
+  "suspension_cause": "The actuator feedback channel produced stale status data after a recovery event.",
+  "required_evidence": [
+    "diagnostic",
+    "reset event",
+    "new observation",
+    "matching component identity"
+  ],
+  "submitted_evidence": [
+    "Diagnostic, reset event, and new observation are present.",
+    "However, the remediation report refers to component A-17 while the new observation refers to A-71.",
+    "The surrounding text suggests a transcription error but provides no authoritative correction."
+  ],
+  "deterministic_flags": {
+    "schema_valid": true,
+    "required_fields_present": true,
+    "identity_binding_valid": "unresolved",
+    "integrity_valid": true,
+    "prohibited": false
+  },
+  "semantic_question": "Does the supplied remediation evidence adequately support that the stated suspension cause has been addressed, based only on the supplied evidence?",
+  "expected_handling_band": "HOLD_ZONE",
+  "repeat_group": null,
+  "notes": [
+    "Synthetic fixture; SEMANTIC_CHECK_PASS does not authorize re-entry.",
+    "See docs/J3_Materialization.md for explicit representation assumptions; the frozen baseline remains authoritative.",
+    "Preferred handling: precheck or contract layer prevents SEMANTIC_CHECK_PASS.",
+    "J3 uses deterministic HOLD without provider evaluation; no authoritative correction is inferred."
+  ]
+}

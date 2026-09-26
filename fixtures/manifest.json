@@ -1,0 +1,39 @@
+{
+  "baseline": "docs/Jev_PoC_J0-J2_Integrated_Baseline_v0.1_20260926.md",
+  "baseline_sha256": "b19ae8f6fefe88d9e5155a16a21c8e095bbbb1949dd013a9ed052a344dbc6df9",
+  "hash_format": "SHA-256 of UTF-8 JSON; sorted keys, compact separators, ensure_ascii=false, allow_nan=false",
+  "fixtures": {
+    "F-01": {
+      "version": "v0.1",
+      "fixture_hash": "406c4163a5b7f2bb5bde2fe2b83ed2b0d4c3cf3d487e80ebb9cd3773b487f435"
+    },
+    "F-02": {
+      "version": "v0.1.1",
+      "fixture_hash": "8e2f38c5c5ba6028d919336a6db7c78b495c35ede0101a7ab028d4c695a69975"
+    },
+    "F-03": {
+      "version": "v0.1.1",
+      "fixture_hash": "3963cc238b657d7caba9b9516ca8636445f1a2f105984010699476ecfe3ab6bd"
+    },
+    "F-04": {
+      "version": "v0.1",
+      "fixture_hash": "e8bb28a93af55decb4555d79c1a2914a00c3d3153046b9709dc185aaa529657b"
+    },
+    "F-05": {
+      "version": "v0.1",
+      "fixture_hash": "b7d0278349dbc8091490b79740738a0f4ca7296dece33acdadb66a7f0f495aa2"
+    },
+    "F-06": {
+      "version": "v0.1",
+      "fixture_hash": "f506d2d49e233717715ad2354885aac0d66c1c90789956c1f46e487b3a0b151d"
+    },
+    "F-07": {
+      "version": "v0.1",
+      "fixture_hash": "92473cbe640c649e2d9dc83ae8fba5246d1e902c731ff61690ae4078ad17a1c9"
+    },
+    "F-08": {
+      "version": "v0.1",
+      "fixture_hash": "4c4228f828e556483e7c444e10873031647dc6af1e80675e163bf116d61cc8f4"
+    }
+  }
+}

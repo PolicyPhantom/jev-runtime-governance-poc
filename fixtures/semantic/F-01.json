@@ -1,0 +1,33 @@
+{
+  "fixture_id": "F-01",
+  "version": "v0.1",
+  "suspension_cause": "The actuator feedback channel produced stale status data after a recovery event.",
+  "required_evidence": [
+    "post-remediation diagnostic tied to the same actuator identity",
+    "recovery/reset event record",
+    "new observation after remediation",
+    "explicit timestamps and matching component identity"
+  ],
+  "submitted_evidence": [
+    "diagnostic completed after remediation: PASS",
+    "actuator identity matches the suspended component",
+    "reset event recorded",
+    "new observation produced after reset and reports nominal feedback",
+    "timestamps are ordered consistently"
+  ],
+  "deterministic_flags": {
+    "schema_valid": true,
+    "required_fields_present": true,
+    "identity_binding_valid": true,
+    "integrity_valid": true,
+    "prohibited": false
+  },
+  "semantic_question": "Does the supplied remediation evidence adequately support that the stated suspension cause has been addressed, based only on the supplied evidence?",
+  "expected_handling_band": "STABLE_SUFFICIENT",
+  "repeat_group": "R1",
+  "notes": [
+    "Synthetic fixture; SEMANTIC_CHECK_PASS does not authorize re-entry.",
+    "See docs/J3_Materialization.md for explicit representation assumptions; the frozen baseline remains authoritative.",
+    "Expected semantic signal: SUFFICIENT; component outcome: SEMANTIC_CHECK_PASS."
+  ]
+}

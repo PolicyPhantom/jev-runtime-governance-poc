@@ -1,0 +1,30 @@
+{
+  "fixture_id": "F-05",
+  "version": "v0.1",
+  "suspension_cause": "The actuator feedback channel produced stale status data after a recovery event.",
+  "required_evidence": [
+    "post-remediation diagnostic tied to the same actuator identity",
+    "recovery/reset event record",
+    "new observation after remediation",
+    "explicit timestamps and matching component identity"
+  ],
+  "submitted_evidence": [
+    "Complete, internally consistent remediation evidence is present."
+  ],
+  "deterministic_flags": {
+    "schema_valid": true,
+    "required_fields_present": true,
+    "identity_binding_valid": true,
+    "integrity_valid": true,
+    "prohibited": true
+  },
+  "semantic_question": "Does the supplied remediation evidence adequately support that the stated suspension cause has been addressed, based only on the supplied evidence?",
+  "expected_handling_band": "DETERMINISTIC_BYPASS",
+  "repeat_group": null,
+  "notes": [
+    "Synthetic fixture; SEMANTIC_CHECK_PASS does not authorize re-entry.",
+    "See docs/J3_Materialization.md for explicit representation assumptions; the frozen baseline remains authoritative.",
+    "Expected precheck and component outcome: DETERMINISTIC_DENY; provider call: NOT REQUIRED.",
+    "J3 does not perform observation-only provider calls."
+  ]
+}

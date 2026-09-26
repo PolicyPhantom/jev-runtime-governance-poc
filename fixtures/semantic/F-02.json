@@ -1,0 +1,34 @@
+{
+  "fixture_id": "F-02",
+  "version": "v0.1.1",
+  "suspension_cause": "The actuator feedback channel produced stale status data after a recovery event.",
+  "required_evidence": [
+    "component identity",
+    "diagnostic result",
+    "reset event linkage",
+    "new observation",
+    "timestamps"
+  ],
+  "submitted_evidence": [
+    "Maintenance was completed and the system appears normal."
+  ],
+  "deterministic_flags": {
+    "schema_valid": true,
+    "required_fields_present": true,
+    "identity_binding_valid": true,
+    "integrity_valid": true,
+    "prohibited": false
+  },
+  "semantic_question": "Does the supplied remediation evidence adequately support that the stated suspension cause has been addressed, based only on the supplied evidence?",
+  "expected_handling_band": "STABLE_NON_SUFFICIENT",
+  "repeat_group": null,
+  "notes": [
+    "Synthetic fixture; SEMANTIC_CHECK_PASS does not authorize re-entry.",
+    "See docs/J3_Materialization.md for explicit representation assumptions; the frozen baseline remains authoritative.",
+    "Missing: component identity; diagnostic result; reset event linkage; new observation; timestamps.",
+    "Frozen semantic expectation: INSUFFICIENT or UNCERTAIN; component outcome: SEMANTIC_CHECK_HOLD.",
+    "Stable SUFFICIENT is an adverse result.",
+    "Provider eligible: schema fields and the synthetic harness binding prerequisite are present; missing substantive evidence elements are inputs to semantic assessment.",
+    "Change reason for v0.1.1: human review clarified that semantic incompleteness must not be materialized as structural missingness or a failed harness binding prerequisite; submitted evidence and frozen expectations are unchanged."
+  ]
+}

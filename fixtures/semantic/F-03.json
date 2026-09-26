@@ -1,0 +1,35 @@
+{
+  "fixture_id": "F-03",
+  "version": "v0.1.1",
+  "suspension_cause": "The actuator feedback channel produced stale status data after a recovery event.",
+  "required_evidence": [
+    "post-remediation diagnostic tied to the same actuator identity",
+    "recovery/reset event record",
+    "new observation after remediation",
+    "explicit timestamps and matching component identity"
+  ],
+  "submitted_evidence": [
+    "A technician reports that the likely cause was corrected.",
+    "A post-remediation diagnostic is present.",
+    "A new observation is not included.",
+    "Identity linkage is present but one validation field is unresolved."
+  ],
+  "deterministic_flags": {
+    "schema_valid": true,
+    "required_fields_present": true,
+    "identity_binding_valid": true,
+    "integrity_valid": true,
+    "prohibited": false
+  },
+  "semantic_question": "Does the supplied remediation evidence adequately support that the stated suspension cause has been addressed, based only on the supplied evidence?",
+  "expected_handling_band": "HOLD_ZONE",
+  "repeat_group": "R2",
+  "notes": [
+    "Synthetic fixture; SEMANTIC_CHECK_PASS does not authorize re-entry.",
+    "See docs/J3_Materialization.md for explicit representation assumptions; the frozen baseline remains authoritative.",
+    "Expected component outcome: SEMANTIC_CHECK_HOLD; acceptable labels: INSUFFICIENT, UNCERTAIN.",
+    "Stable SUFFICIENT requires review.",
+    "Provider eligible in repeat group R2: the absent observation and unresolved validation detail remain semantic ambiguity; the synthetic harness binding prerequisite is satisfied.",
+    "Change reason for v0.1.1: human review distinguished the unresolved semantic validation detail from the hard identity/binding ambiguity in F-08; submitted evidence, R2, and frozen expectations are unchanged."
+  ]
+}

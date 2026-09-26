@@ -1,0 +1,31 @@
+{
+  "fixture_id": "F-04",
+  "version": "v0.1",
+  "suspension_cause": "The actuator feedback channel produced stale status data after a recovery event.",
+  "required_evidence": [
+    "post-remediation diagnostic / verification reports tied to the same component and remediation window"
+  ],
+  "submitted_evidence": [
+    "Report A: post-remediation diagnostic PASS.",
+    "Report B: post-remediation verification FAIL.",
+    "Both refer to the same component and same remediation window.",
+    "Neither supersedes the other."
+  ],
+  "deterministic_flags": {
+    "schema_valid": true,
+    "required_fields_present": true,
+    "identity_binding_valid": true,
+    "integrity_valid": true,
+    "prohibited": false
+  },
+  "semantic_question": "Does the supplied remediation evidence adequately support that the stated suspension cause has been addressed, based only on the supplied evidence?",
+  "expected_handling_band": "HOLD_ZONE",
+  "repeat_group": "R3",
+  "notes": [
+    "Synthetic fixture; SEMANTIC_CHECK_PASS does not authorize re-entry.",
+    "See docs/J3_Materialization.md for explicit representation assumptions; the frozen baseline remains authoritative.",
+    "Expected semantic signal: CONFLICTING; component outcome: SEMANTIC_CHECK_HOLD.",
+    "Stable SUFFICIENT requires review.",
+    "The frozen fragment supplies conflicting reports. No additional diagnostic result or remediation artifact is invented."
+  ]
+}
