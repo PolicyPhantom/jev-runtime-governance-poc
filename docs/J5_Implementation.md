@@ -2,16 +2,18 @@
 
 Scope: the offline observation machinery in the
 [frozen J5 specification](Jev_PoC_J5_Repeatability_Independent_Review_Spec_v0.1_20260926.md).
-J3/J4 logic, their 68 tests, all fixtures, and the three frozen specifications are
-unchanged. Only the standard library is used. Independent review is deferred to a
-fresh session after implementation acceptance; this note contains no review result.
+J3/J4 semantics, their 68 tests, all fixtures, and the three frozen specifications
+are preserved. Only the standard library is used. The authorized J5-IR-01/02
+corrections below are implemented against accepted commit `2aec735`.
+**J5 closure remains HOLD pending independent re-review in a fresh session.**
+This correction session performs implementation verification only, not that review.
 
 ## Architecture and use
 
 `ScriptedSequenceProvider` returns supplied responses in order without inspecting
 the request. Each successful call consumes exactly one response. Exhaustion raises
 `SequenceExhaustedError`, increments the call count, consumes no response, and
-never loops or retries. The unchanged harness records exhaustion as INVALID_RESULT.
+never loops or retries. The harness records exhaustion as INVALID_RESULT.
 This is a test instrument, not a model simulator.
 
 `run_repeatability` snapshots one fixture as canonical JSON and deserializes a
@@ -60,6 +62,14 @@ propagates as EvidencePersistenceError; no CompletedRepeatGroup is returned.
 Previously completed decision records remain available. A summary never replaces
 per-decision evidence, and partial staged files are never committed JSON.
 
+Immediately after each successful decision write, the runner reads and parses
+that committed JSON before starting the next provider call. These detached
+snapshots are the summary inputs: their content equals the persisted per-decision
+evidence, including any annotations the writer persisted. Analysis does not use
+the mutable `CompletedDecision.record` objects as its source. Readback or JSON
+decoding failure raises EvidencePersistenceError, stops the group, and produces
+no summary or completed group; already-persisted decisions remain available.
+
 ## Summary semantics
 
 Every group retains fixture ID/version/hash, request hashes, run count, decision
@@ -86,6 +96,10 @@ Checks also compare fixture/input/request audit metadata for constant policy and
 retry settings. UUIDs, clocks, and latency do not participate in those checks.
 `summarize_repeat_group` can reanalyze persisted records with another profile
 without changing the records or writing files.
+
+J5-IR-03 remains NOTE only. The conservative broader input/policy consistency
+behavior is unchanged; its classification is a deferred J6 taxonomy consideration.
+This deferral does not authorize J6 work.
 
 ## Analysis-only thresholds
 
@@ -140,3 +154,68 @@ reliability, or authority. Low variance is not evidence of those properties.
 SEMANTIC_CHECK_PASS is not ALLOW or re-entry permission. There is no SimBench
 integration, production threshold, or general mixed-failure precedence policy.
 Live Jev, J6, and the independent-review step are outside this implementation pass.
+
+## Authorized correction verification (2026-09-27)
+
+J5-IR-01: `provider_valid` is established only at the end of required processing,
+after successful raw-response hashing. Every caught provider/processing exception
+leaves it false. Unexpected processing exceptions record transport ERROR and the
+exception class/detail; any evaluated validation is marked schema INVALID. Hash
+failure leaves `raw_response_hash` null. The real gate returns INVALID_RESULT.
+Ordinary ValueError/TypeError encoding rejections retain J3/J4's existing transport
+and CONTRACT_INVALID rationale. A narrow `contract_encoding_failed` gate argument
+preserves that rationale while `provider_valid` is false; it only selects the
+reason on the INVALID_RESULT branch and cannot enable a successful outcome.
+
+J5-IR-02: valid normalized probabilities use a detached plain dictionary. Existing
+label/probability rules and integer/float values are unchanged. Provider reuse or
+later mutation cannot alter earlier completed answers. Group analysis uses the
+committed JSON snapshots described above.
+
+Seven added tests in `tests/test_j5_corrections.py` cover:
+
+- A valid SUFFICIENT contract with metadata whose real canonicalization raises
+  RuntimeError; the harness and real gate persist INVALID_RESULT with audit error.
+- Ordinary encoding rejections with false provider success and preserved J4
+  classification.
+- Plain detached normalization, including dictionary subclasses and numeric types.
+- Direct harness decisions surviving a provider's reused probability dictionary.
+- The same unsafe provider through repeatability: persisted and in-memory values
+  are [0.60, 0.80], summary source records equal evidence, threshold 0.70 crosses
+  upward, threshold 0.90 does not, and both decisions remain SEMANTIC_CHECK_PASS.
+- A writer that enriches its persisted copy, verifying that analysis consumes the
+  exact persisted content rather than the transient record.
+- Readback and JSON decoding failures: one provider call, prior evidence retained,
+  no retry, no partial file, no analysis, and no completed group.
+
+The first six regression tests failed against the uncorrected implementation,
+including an actual SEMANTIC_CHECK_PASS after the RuntimeError and mutation of
+Run 1 from 0.60 to 0.80. After correction the full suite passes **97 tests**:
+all original 90 tests plus seven new tests. Original test files remain unchanged.
+
+| Verification | Result |
+| --- | --- |
+| J3 regression | 0; all 48 original tests pass |
+| J4 regression | 0; all 20 original tests pass, JF-01..JF-20 covered |
+| Original J5 tests | All 22 pass; JR-01..JR-10 coverage complete |
+| FAIL_OPEN_COUNT | 0 in final J4/J5 summaries; correction cases fail closed |
+| Retry beyond first attempt | 0 |
+| Threshold-to-gate coupling findings | 0 |
+| Undetected request-identity drift | 0; all five provider-visible fields exercised |
+| Deterministic bypass provider calls | 0 for F-05/F-06/F-08 |
+| Evidence partial commit findings | 0 |
+| Provider eligibility | F-01/F-02/F-03/F-04/F-07 preserved |
+| Model mismatch and invalid groups | Fail closed; stability statistics suppressed as before |
+| SEMANTIC_CHECK_PASS | Still not ALLOW |
+
+The three frozen specification SHA-256 values remain unchanged:
+
+| Specification | SHA-256 |
+| --- | --- |
+| J0-J2 baseline | `b19ae8f6fefe88d9e5155a16a21c8e095bbbb1949dd013a9ed052a344dbc6df9` |
+| J4 | `405894acabf1932217e3ba8c43198a2b94199f9014c95e678f16c4435978de8c` |
+| J5 | `ab1a7c2e2713c35b38bb311d95f4908515175be4da80e7b72cc10fbd8d4d0c23` |
+
+No network/API calls, credential inspection, live Jev, SimBench integration,
+subagents, commit, push, merge, J6 work, or independent re-review were performed
+in this correction session. Stop for human review; J5 closure remains HOLD.

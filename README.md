@@ -10,6 +10,9 @@ The [frozen J4 specification](docs/Jev_PoC_J4_Failure_Injection_Spec_v0.1_202609
 bounds failure injection; the
 [frozen J5 specification](docs/Jev_PoC_J5_Repeatability_Independent_Review_Spec_v0.1_20260926.md)
 bounds repeatability observation. Independent review is a separate, deferred step.
+The authorized J5-IR-01/02 corrections are implemented; **J5 closure remains HOLD
+pending independent re-review**. See the correction verification in the
+[J5 implementation notes](docs/J5_Implementation.md#authorized-correction-verification-2026-09-27).
 `J0_MOCK_ENTRY = PASS`;
 `J0_LIVE_ENTRY = BLOCKED_API_KEY`. Live Jev evaluation remains blocked and is not
 authorized. The harness neither reads credentials nor imports the installed Jev
@@ -42,9 +45,10 @@ Frozen Fixture → Deterministic Precheck → Provider Adapter
 - `src/sequence_provider.py` supplies J5's `ScriptedSequenceProvider`. It consumes
   one supplied response per call and fails explicitly on exhaustion. It never
   reads the request and is a test instrument, not a model simulator.
-- `src/repeatability.py` runs one frozen fixture repeatedly through the unchanged
+- `src/repeatability.py` runs one frozen fixture repeatedly through the ordinary
   harness, captures actual provider-visible requests, and persists every decision
-  plus a separate group summary. `src/repeatability_analysis.py` observes variance
+  plus a separate group summary sourced from committed decision JSON snapshots.
+  `src/repeatability_analysis.py` observes variance
   and analysis-only threshold crossings after decisions are persisted. Input drift
   invalidates the group and suppresses stability statistics. Deterministic bypass
   is excluded from model repeatability interpretation.

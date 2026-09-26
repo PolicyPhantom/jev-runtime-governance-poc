@@ -59,6 +59,7 @@ def run(fixture: JsonObject, provider: Provider | None, *,
     }
     validation = NOT_VALIDATED
     provider_valid = False
+    contract_encoding_failed = False
     if precheck.result == "PASS":
         if provider is None:
             record["provider"]["transport_status"] = "UNAVAILABLE"
@@ -82,24 +83,35 @@ def run(fixture: JsonObject, provider: Provider | None, *,
                 validation, answer = validate(response.raw_response, requested_model, response.resolved_model)
                 record["validation"] = asdict(validation)
                 record["answer"] = answer
-                provider_valid = response.transport_status == "OK"
                 try:
                     record["evidence"]["raw_response_hash"] = content_hash(response.raw_response)
                 except (ValueError, TypeError) as error:
+                    # Preserve J3/J4's encoding-rejection classification without
+                    # treating a response that failed processing as successful.
+                    contract_encoding_failed = response.transport_status == "OK"
                     validation = replace(validation, schema_status="INVALID")
                     record["validation"] = asdict(validation)
                     record["evidence"].update(error_class=type(error).__name__, error_detail=str(error))
-                if (not provider_valid or not validation.valid) and record["evidence"]["error_class"] is None:
+                if (response.transport_status != "OK" or not validation.valid) and record["evidence"]["error_class"] is None:
                     record["evidence"].update(
-                        error_class="ContractInvalid" if provider_valid else "ProviderResultInvalid",
+                        error_class="ContractInvalid" if response.transport_status == "OK" else "ProviderResultInvalid",
                         error_detail="Provider result did not satisfy the controlled choice contract",
                     )
+                # Success becomes authoritative only after required processing.
+                provider_valid = (response.transport_status == "OK"
+                                  and record["evidence"]["raw_response_hash"] is not None)
             except Exception as error:
+                provider_valid = False
+                contract_encoding_failed = False
+                if validation != NOT_VALIDATED:
+                    validation = replace(validation, schema_status="INVALID")
+                record["validation"] = asdict(validation)
                 record["provider"]["transport_status"] = "ERROR"
                 record["evidence"].update(error_class=type(error).__name__, error_detail=str(error))
             finally:
                 record["provider"]["latency_ms"] = (perf_counter() - start) * 1000
-    gate = decide(precheck, validation, record["answer"]["selected_label"], provider_valid)
+    gate = decide(precheck, validation, record["answer"]["selected_label"], provider_valid,
+                  contract_encoding_failed=contract_encoding_failed)
     record["component_gate"] = asdict(gate)
     # There is no completed-result return path until persistence succeeds.
     evidence_path = (writer if writer is not None else AuditWriter()).write(record)

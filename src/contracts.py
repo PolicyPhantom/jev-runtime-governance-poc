@@ -70,7 +70,7 @@ def validate(raw: object, requested_model: str, resolved_model: object) -> tuple
     # Invalid structures stay in the response hash, never in normalized fields.
     answer = {
         "selected_label": label if isinstance(label, str) else None,
-        "probabilities": probabilities if probability_valid else None,
+        "probabilities": dict(probabilities) if probability_valid else None,
         "confidence_nullable": confidence if confidence_status == "VALID" else None,
     }
     return validation, answer

@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from uuid import uuid4
 
-from .audit import AuditWriter, EVIDENCE_ROOT
+from .audit import AuditWriter, EVIDENCE_ROOT, EvidencePersistenceError
 from .fixtures import canonical_json, content_hash, load_fixture
 from .harness import CompletedDecision, run
 from .models import JsonObject, MOCK_MODEL
@@ -74,15 +74,24 @@ def run_repeatability(fixture_id: str, repeat_count: int, provider: Provider, *,
     writer = writer if writer is not None else AuditWriter()
     observed = _ObservedProvider(provider)
     decisions = []
+    persisted_records = []
     for index in range(1, repeat_count + 1):
         decision_writer = _DecisionWriter(writer, observed, group_id, fixture["repeat_group"],
                                           index, len(observed.requests))
         # A new logical decision is not a retry; identical serialized input is reused.
         decision = run(json.loads(serialized_fixture), observed, writer=decision_writer,
                        requested_model=requested_model)
+        # Read the committed evidence before another provider call can mutate
+        # any transient state. Only these detached records may feed analysis.
+        try:
+            persisted_records.append(json.loads(decision.evidence_path.read_text(encoding="utf-8")))
+        except (OSError, ValueError) as error:
+            raise EvidencePersistenceError(
+                f"NOT COMMITTABLE: cannot read persisted decision evidence: {error}"
+            ) from error
         decisions.append(decision)
     # Analysis sees completed records only; the profile never reaches run() or gate.
-    summary = summarize_repeat_group([decision.record for decision in decisions], analysis_profile)
+    summary = summarize_repeat_group(persisted_records, analysis_profile)
     summary["decision_evidence_paths"] = [
         decision.evidence_path.relative_to(EVIDENCE_ROOT).as_posix() for decision in decisions
     ]
