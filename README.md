@@ -1,11 +1,13 @@
-# Jev runtime-governance PoC — J3
+# Jev runtime-governance PoC — J3/J4
 
 This isolated PoC tests whether a typed probabilistic decision component can sit
 inside a deterministic shell without becoming an authority. The sole normative
 J0–J2 specification is
 [the frozen baseline](docs/Jev_PoC_J0-J2_Integrated_Baseline_v0.1_20260926.md).
 
-Current implementation: **J3, mock provider only**. `J0_MOCK_ENTRY = PASS`;
+Current implementation: **accepted J3 plus J4 offline failure injection**.
+The [frozen J4 specification](docs/Jev_PoC_J4_Failure_Injection_Spec_v0.1_20260926.md)
+bounds the failure tests. `J0_MOCK_ENTRY = PASS`;
 `J0_LIVE_ENTRY = BLOCKED_API_KEY`. Live Jev evaluation remains blocked and is not
 authorized. The harness neither reads credentials nor imports the installed Jev
 SDK. This is not SimBench integration. No runtime permission, re-entry, execution,
@@ -28,9 +30,12 @@ Frozen Fixture → Deterministic Precheck → Provider Adapter
   Failed structural or governance prerequisites skip
   the provider. Missing substantive elements within a present, structurally valid
   evidence submission remain inputs to semantic assessment.
-- `src/providers.py` defines a protocol for future adapters. Only `MockProvider`
-  exists; it returns an explicitly scripted response without examining evidence,
+- `src/providers.py` defines a protocol and `MockProvider`, which returns an
+  explicitly scripted response without examining evidence,
   expected bands, or notes. There is no authorization logic or fallback in it.
+- `src/failure_provider.py` supplies J4's local `FailureProvider`. It raises a
+  configured exception or returns an injected invalid result without reading
+  the request. HTTP status simulations are local exceptions, not HTTP calls.
 - `src/contracts.py` validates the local `choice` contract: one allowed label,
   probabilities for all four labels, and explicit confidence/model handling.
 - `src/gate.py` permits `SUFFICIENT` to become `SEMANTIC_CHECK_PASS` only after
@@ -59,7 +64,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m src --fixture F-05 --label SUFFICIENT
 ```
 
-Skip the first command if the virtual environment already exists. J3 needs only
+Skip the first command if the virtual environment already exists. J3/J4 need only
 the standard library: no package installation or network access is required.
 Existing `requirements.txt` and `requirements-lock.txt` are unchanged and are not
 needed to run the mock harness. No API key setup is required.
@@ -110,8 +115,14 @@ mock's returned JSON object, including unknown fields. Unencodable responses
 produce `INVALID_RESULT` and an explicit encoding error with a null response hash.
 
 Tests are deterministic and offline. They write temporary records only below
-ignored `evidence/` and clean their own temporary directories. There are no live
-adapters, transport/HTTP failure campaigns, confidence experiments, integration
-claims, or semantic-quality claims. A scripted mock cannot establish whether Jev
-assesses conflict, ambiguity, or distracting instructions correctly. J4 is not
-implemented or authorized by this work.
+ignored `evidence/` and clean their own temporary directories. The full test
+command includes the accepted J3 suite and all twenty J4 cases, with required
+variants expressed as subtests. It prints a `J4_SUMMARY` with coverage and observed
+failure counters. The runner can stop at the first failure by adding `-f`.
+
+[J4 implementation notes](docs/J4_Implementation.md) map every JF case to its test.
+`FAIL_OPEN = 0` refers only to the tested J4 failure set and successfully returned
+or committed decisions. A computed candidate whose persistence fails is NOT
+COMMITTABLE. Retry remains OFF. These simulations make no claim about live
+provider reliability, semantic quality, or production readiness. This is not
+SimBench integration. Live Jev remains unauthorized, and J5 is not authorized.
