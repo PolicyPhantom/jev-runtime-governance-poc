@@ -95,6 +95,13 @@ def _assessment_scope(fixture: JsonObject, key: str) -> str:
 def assess_decision_reconstruction(
     fixture: JsonObject,
 ) -> tuple[DecisionReconstructionStatus, str]:
+    """Assess reconstruction from trusted, pre-materialized J6 fixture facts.
+
+    This helper is not a standalone integrity or raw-evidence validation
+    boundary. Callers must use assess_j6_fixture() for the guarded path that
+    first verifies the frozen fixture identity chain.
+    """
+
     scope = _assessment_scope(fixture, "decision_reconstruction")
 
     if scope == "NOT_RUN":
@@ -189,6 +196,14 @@ def assess_decision_reconstruction(
 def assess_permission_applicability(
     fixture: JsonObject,
 ) -> tuple[PermissionApplicabilityStatus, str]:
+    """Assess permission from trusted, pre-resolved J6 fixture facts.
+
+    This helper consumes reviewed authority, scope, timing, condition,
+    delegation, exception, and restoration facts. It is not a standalone
+    resolver of raw authority or evidence records. Callers must use
+    assess_j6_fixture() for the guarded fixture-identity path.
+    """
+
     scope = _assessment_scope(fixture, "permission_applicability")
 
     if scope == "NOT_RUN":

@@ -1,6 +1,9 @@
 """Offline regression tests for the frozen J6 v0.3 assessment semantics."""
 
 from copy import deepcopy
+import json
+from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -11,8 +14,10 @@ from src.j6_assessment import (
     assess_j6_fixture,
     assess_permission_applicability,
 )
-from src.j6_fixtures import load_j6_fixture
-
+from src.j6_fixtures import (
+    j6_fixture_identity_valid,
+    load_j6_fixture,
+)
 
 class J6CanonicalScenarioTests(unittest.TestCase):
     def test_r1_restoration_case_matches_frozen_expectation(self):
@@ -186,7 +191,39 @@ class J6IdentityAndIndependenceTests(unittest.TestCase):
             result.permission_reason_code,
             "PA_RESTORATION_CONDITION_UNMET",
         )
+    def test_requested_fixture_identity_is_bound_to_loaded_payload(self):
+        x1_fixture = load_j6_fixture("J6-PERM-X1")
 
+        self.assertFalse(
+            j6_fixture_identity_valid(
+                x1_fixture,
+                expected_fixture_id="J6-PERM-R1",
+            )
+        )
+
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            substituted_directory = Path(temporary_directory)
+
+            (
+                substituted_directory / "J6-PERM-R1.json"
+            ).write_text(
+                json.dumps(
+                    x1_fixture,
+                    ensure_ascii=False,
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
+
+            with patch(
+                "src.j6_fixtures.J6_PERMISSION_DIR",
+                substituted_directory,
+            ):
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "Requested/payload J6 fixture identity mismatch",
+                ):
+                    load_j6_fixture("J6-PERM-R1")
 
 if __name__ == "__main__":
     unittest.main()
