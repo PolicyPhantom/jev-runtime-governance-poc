@@ -1,0 +1,114 @@
+{
+  "fixture_id": "J6-PERM-R1",
+  "version": "v0.1",
+  "scenario_role": "CORE_RESTORATION_CASE",
+  "description": "Synthetic restoration case separating successful technical remediation from restoration of permission.",
+  "decision_id": "J6-R1-D001",
+  "examined_action": "restore_consumer_operation_after_remediation",
+  "decision_time": "2026-09-29T12:00:00Z",
+  "decision_input_references": [
+    "E-R1-SEM-001",
+    "E-R1-AUTH-001",
+    "E-R1-HG-001"
+  ],
+  "applied_rule_reference": "RULE-R1-POSTRESPONSE-ADMISSIBILITY-v1",
+  "decision_result": "REMAIN_RESTRICTED",
+  "authority_reference": "AUTH-R1-RESTORATION-POLICY-v1",
+  "authority_scope": "restore_consumer_operation_after_remediation",
+  "authority_effective_time_or_interval": {
+    "start": "2026-09-01T00:00:00Z",
+    "end": null
+  },
+  "applicable_permission_or_restriction_terms": [
+    "Technical remediation is necessary but does not restore permission by itself.",
+    "Restoration of consumer operation requires completed Human Gate re-authorisation after review of current evidence."
+  ],
+  "restoration_condition": {
+    "condition_id": "COND-R1-HUMAN-REAUTH",
+    "required": true,
+    "description": "Human Gate re-authorisation must be completed before consumer operation may be restored."
+  },
+  "delegation": {
+    "applicable": false
+  },
+  "exception": {
+    "applicable": false
+  },
+  "permission_facts": {
+    "authority_resolved": true,
+    "scope_resolved": true,
+    "effective_time_resolved": true,
+    "conditions_resolved": true,
+    "delegation_resolved": true,
+    "exception_resolved": true,
+    "restoration_terms_resolved": true,
+    "operative_restrictions": [],
+    "explicit_exclusions": [],
+    "unmet_necessary_conditions": [
+      "COND-R1-HUMAN-REAUTH"
+    ],
+    "all_necessary_permission_conditions_satisfied": false
+  },
+  "condition_evidence_references": [
+    "E-R1-SEM-001",
+    "E-R1-HG-001"
+  ],
+  "evidence_items": {
+    "E-R1-SEM-001": {
+      "type": "synthetic_component_result",
+      "component_outcome": "SEMANTIC_CHECK_PASS",
+      "semantic_signal": "SUFFICIENT",
+      "statement": "The supplied remediation evidence adequately supports that the stated technical suspension cause has been addressed.",
+      "provider_call_performed": false
+    },
+    "E-R1-AUTH-001": {
+      "type": "synthetic_authority_record",
+      "authority_reference": "AUTH-R1-RESTORATION-POLICY-v1",
+      "effective_from": "2026-09-01T00:00:00Z",
+      "statement": "Technical remediation alone does not restore permission. Completed Human Gate re-authorisation is required before restoration of consumer operation."
+    },
+    "E-R1-HG-001": {
+      "type": "synthetic_human_gate_record",
+      "observed_at": "2026-09-29T11:59:30Z",
+      "status": "NOT_APPROVED",
+      "statement": "The Human Gate record affirmatively confirms that re-authorisation had not been granted as of the examined decision time."
+    }
+  },
+  "evidence_linkage": [
+    {
+      "from": "E-R1-SEM-001",
+      "to": "decision_result",
+      "relationship": "supports technical remediation only"
+    },
+    {
+      "from": "E-R1-AUTH-001",
+      "to": "COND-R1-HUMAN-REAUTH",
+      "relationship": "defines required restoration condition"
+    },
+    {
+      "from": "E-R1-HG-001",
+      "to": "COND-R1-HUMAN-REAUTH",
+      "relationship": "affirmatively establishes condition unmet at decision time"
+    },
+    {
+      "from": "RULE-R1-POSTRESPONSE-ADMISSIBILITY-v1",
+      "to": "decision_result",
+      "relationship": "keeps consumer operation restricted when required restoration permission is not established"
+    }
+  ],
+  "evidence_integrity_reference": "fixtures/j6/manifest.json#J6-PERM-R1.fixture_hash",
+  "expected_assessment": {
+    "component_outcome": "SEMANTIC_CHECK_PASS",
+    "decision_reconstruction_status": "RECONSTRUCTED",
+    "decision_reconstruction_reason_code": "DR_EVIDENCE_COMPLETE",
+    "permission_applicability_status": "NOT_SUPPORTED",
+    "permission_reason_code": "PA_RESTORATION_CONDITION_UNMET"
+  },
+  "notes": [
+    "Synthetic offline fixture; no live Jev call is required or implied.",
+    "SEMANTIC_CHECK_PASS establishes only the bounded technical-remediation component result represented in this fixture.",
+    "The NOT_SUPPORTED permission result relies on affirmative evidence that the required Human Gate re-authorisation was not granted at the examined decision time.",
+    "Missing Human Gate evidence alone would instead require INDETERMINATE.",
+    "Technical recovery does not imply permission restoration."
+  ]
+}

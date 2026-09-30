@@ -1,0 +1,120 @@
+{
+  "fixture_id": "J6-PERM-X1",
+  "version": "v0.1",
+  "scenario_role": "CONTRAST_RESTRICTION_CASE",
+  "description": "Synthetic contrast case where an older consumer rule permits an action after a newer applicable authority has already restricted that action.",
+  "decision_id": "J6-X1-D001",
+  "examined_action": "submit_semantic_assessment_request",
+  "decision_time": "2026-09-29T12:00:00Z",
+  "decision_input_references": [
+    "E-X1-RULE-001",
+    "E-X1-SEM-001"
+  ],
+  "applied_rule_reference": "RULE-X1-LEGACY-PERMIT-v1",
+  "decision_result": "ACTION_PROCEEDED",
+  "authority_reference": "AUTH-X1-RESTRICTIVE-POLICY-v2",
+  "authority_scope": "submit_semantic_assessment_request",
+  "authority_effective_time_or_interval": {
+    "start": "2026-09-29T10:00:00Z",
+    "end": null
+  },
+  "applicable_permission_or_restriction_terms": [
+    "Semantic assessment requests are excluded after the restrictive policy becomes effective unless an applicable exception or delegation is in force.",
+    "The restrictive authority supersedes the earlier consumer permission rule for the examined action from its effective time."
+  ],
+  "restoration_condition": {
+    "applicable": false
+  },
+  "delegation": {
+    "applicable": false,
+    "status": "CONFIRMED_NONE"
+  },
+  "exception": {
+    "applicable": false,
+    "status": "CONFIRMED_NONE"
+  },
+  "permission_facts": {
+    "authority_resolved": true,
+    "scope_resolved": true,
+    "effective_time_resolved": true,
+    "conditions_resolved": true,
+    "delegation_resolved": true,
+    "exception_resolved": true,
+    "restoration_terms_resolved": true,
+    "operative_restrictions": [],
+    "explicit_exclusions": [
+      "submit_semantic_assessment_request"
+    ],
+    "unmet_necessary_conditions": [],
+    "all_necessary_permission_conditions_satisfied": false
+  },
+  "condition_evidence_references": [
+    "E-X1-AUTH-001",
+    "E-X1-EXC-001"
+  ],
+  "evidence_items": {
+    "E-X1-RULE-001": {
+      "type": "synthetic_consumer_rule_record",
+      "rule_reference": "RULE-X1-LEGACY-PERMIT-v1",
+      "statement": "The consumer decision path used the legacy rule, under which submission of the semantic assessment request was permitted."
+    },
+    "E-X1-SEM-001": {
+      "type": "synthetic_component_result",
+      "component_outcome": "SEMANTIC_CHECK_PASS",
+      "semantic_signal": "SUFFICIENT",
+      "statement": "The synthetic provider-facing semantic assessment completed with an acceptable component result.",
+      "provider_call_performed": false
+    },
+    "E-X1-AUTH-001": {
+      "type": "synthetic_authority_record",
+      "authority_reference": "AUTH-X1-RESTRICTIVE-POLICY-v2",
+      "effective_from": "2026-09-29T10:00:00Z",
+      "statement": "From the effective time onward, submission of the semantic assessment request is excluded unless an applicable exception or delegation is in force."
+    },
+    "E-X1-EXC-001": {
+      "type": "synthetic_exception_and_delegation_record",
+      "observed_at": "2026-09-29T11:59:30Z",
+      "exception_status": "CONFIRMED_NONE",
+      "delegation_status": "CONFIRMED_NONE",
+      "statement": "The applicable authority record affirmatively confirms that no exception or delegation applies to the examined action at the decision time."
+    }
+  },
+  "evidence_linkage": [
+    {
+      "from": "E-X1-RULE-001",
+      "to": "decision_result",
+      "relationship": "explains why the consumer decision path allowed the action to proceed"
+    },
+    {
+      "from": "E-X1-AUTH-001",
+      "to": "authority_reference",
+      "relationship": "establishes the newer restrictive authority and its effective time"
+    },
+    {
+      "from": "E-X1-EXC-001",
+      "to": "authority_reference",
+      "relationship": "affirmatively establishes that no overriding exception or delegation applies"
+    },
+    {
+      "from": "AUTH-X1-RESTRICTIVE-POLICY-v2",
+      "to": "examined_action",
+      "relationship": "establishes an operative exclusion for the examined action at the decision time"
+    }
+  ],
+  "evidence_integrity_reference": "fixtures/j6/manifest.json#J6-PERM-X1.fixture_hash",
+  "expected_assessment": {
+    "component_outcome": "SEMANTIC_CHECK_PASS",
+    "decision_reconstruction_status": "RECONSTRUCTED",
+    "decision_reconstruction_reason_code": "DR_EVIDENCE_COMPLETE",
+    "permission_applicability_status": "NOT_SUPPORTED",
+    "permission_reason_code": "PA_EXPLICIT_EXCLUSION"
+  },
+  "notes": [
+    "Synthetic offline fixture; no live Jev call is required or implied.",
+    "The applied consumer rule and the applicable permission authority are intentionally different.",
+    "The difference between applied_rule_reference and authority_reference is not itself an evidence conflict.",
+    "The NOT_SUPPORTED result relies on an operative newer restriction plus affirmative evidence that no overriding exception or delegation applies.",
+    "If exception or delegation applicability were unresolved, the permission result would instead be INDETERMINATE.",
+    "Post-response assessment does not imply that the earlier request was prevented."
+  ]
+}

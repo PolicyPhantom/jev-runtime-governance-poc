@@ -1,0 +1,16 @@
+{
+  "specification": "docs/Jev_PoC_J6_Specification_v0.3_20260930.md",
+  "specification_status": "FROZEN",
+  "specification_sha256": "48d666faca7bcce7f2d2bfb23a757d6e5daf11653fdbe408fd331e87a26455b1",
+  "hash_format": "SHA-256 of UTF-8 JSON; sorted keys, compact separators, ensure_ascii=false, allow_nan=false",
+  "fixtures": {
+    "J6-PERM-R1": {
+      "version": "v0.1",
+      "fixture_hash": "24ffd39e791da29446ff4850b7ab103fcc75d3b80334f7d77f4f574f7477c026"
+    },
+    "J6-PERM-X1": {
+      "version": "v0.1",
+      "fixture_hash": "03ee6e56ddcbc6f0de54c3cbfa377b62f75f600a7fba110e40862e6380fb485e"
+    }
+  }
+}
