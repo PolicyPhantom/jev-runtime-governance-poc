@@ -244,91 +244,211 @@ def run_j6_live_case(
         # Exactly one runner-level provider attempt.
         record["provider"]["attempt_count"] = 1
 
-        response = provider.evaluate(request)
-
-        if not isinstance(response, ProviderResponse):
-            raise TypeError("Provider must return ProviderResponse")
-
-        record["provider"]["transport_status"] = response.transport_status
-        record["provider"]["resolved_model"] = response.resolved_model
-
-        live_validation = validate_j6_live_response(
-            response.raw_response,
-            requested_model=requested_model,
-            resolved_model=response.resolved_model,
-        )
-
-        record["validation"].update(
-            asdict(live_validation.validation)
-        )
-        record["validation"]["response_contract_valid"] = (
-            live_validation.response_contract_valid
-        )
-
-        record["answer"] = deepcopy(live_validation.answer)
-
         try:
-            raw_hash = content_hash(response.raw_response)
-            record["evidence"]["raw_response_hash"] = raw_hash
-            record["evidence"]["raw_response"] = deepcopy(
-                response.raw_response
-            )
-        except (TypeError, ValueError) as error:
-            raw_hash = None
-            record["evidence"]["raw_response_repr"] = repr(
-                response.raw_response
-            )
+            response = provider.evaluate(request)
+
+        except Exception as error:
+            # The provider call itself failed before a usable response returned.
+            record["provider"]["transport_status"] = "ERROR"
+
+            record["live_component"] = {
+                "component_outcome": Outcome.INVALID_RESULT.value,
+                "rationale_code": "J6_PROVIDER_EXECUTION_ERROR",
+            }
+
+            record["stop"] = {
+                "triggered": True,
+                "reason": "PROVIDER_EXECUTION_ERROR",
+            }
+
             record["evidence"]["error_class"] = type(error).__name__
             record["evidence"]["error_detail"] = str(error)
 
-        (
-            component_outcome,
-            rationale_code,
-            stop_triggered,
-            stop_reason,
-        ) = _live_component_result(
-            transport_status=response.transport_status,
-            response_contract_valid=(
-                live_validation.response_contract_valid
-            ),
-            selected_label=record["answer"]["selected_label"],
-            raw_response_hash=raw_hash,
-        )
+        else:
+            if not isinstance(response, ProviderResponse):
+                # The provider returned, but the local adapter boundary could
+                # not interpret the returned object as ProviderResponse.
+                record["provider"]["transport_status"] = (
+                    "RETURNED_INVALID_TYPE"
+                )
 
-        record["live_component"] = {
-            "component_outcome": component_outcome,
-            "rationale_code": rationale_code,
-        }
+                record["live_component"] = {
+                    "component_outcome": Outcome.INVALID_RESULT.value,
+                    "rationale_code": (
+                        "J6_LOCAL_RESPONSE_PROCESSING_ERROR"
+                    ),
+                }
 
-        record["stop"] = {
-            "triggered": stop_triggered,
-            "reason": stop_reason,
-        }
+                record["stop"] = {
+                    "triggered": True,
+                    "reason": "LOCAL_RESPONSE_PROCESSING_ERROR",
+                }
 
-        if (
-            stop_triggered
-            and record["evidence"]["error_class"] is None
-        ):
-            record["evidence"]["error_class"] = (
-                "J6LiveStopCondition"
-            )
-            record["evidence"]["error_detail"] = stop_reason
+                record["evidence"]["error_class"] = "TypeError"
+                record["evidence"]["error_detail"] = (
+                    "Provider returned a non-ProviderResponse object"
+                )
 
-    except Exception as error:
-        record["provider"]["transport_status"] = "ERROR"
+            else:
+                # Preserve the provider-returned transport observation before
+                # any local response validation or normalization occurs.
+                record["provider"]["transport_status"] = (
+                    response.transport_status
+                )
+                record["provider"]["resolved_model"] = (
+                    response.resolved_model
+                )
 
-        record["live_component"] = {
-            "component_outcome": Outcome.INVALID_RESULT.value,
-            "rationale_code": "J6_PROVIDER_EXECUTION_ERROR",
-        }
+                # Preserve the received raw response before local validation.
+                # If it cannot be canonically encoded, retain only an
+                # attributable fallback representation. The fallback never
+                # becomes trusted normalized evidence.
+                try:
+                    raw_hash = content_hash(response.raw_response)
 
-        record["stop"] = {
-            "triggered": True,
-            "reason": "PROVIDER_EXECUTION_ERROR",
-        }
+                    record["evidence"]["raw_response_hash"] = (
+                        raw_hash
+                    )
+                    record["evidence"]["raw_response"] = deepcopy(
+                        response.raw_response
+                    )
 
-        record["evidence"]["error_class"] = type(error).__name__
-        record["evidence"]["error_detail"] = str(error)
+                except (TypeError, ValueError) as error:
+                    raw_hash = None
+
+                    try:
+                        raw_repr = repr(response.raw_response)
+                    except Exception as repr_error:
+                        raw_repr = (
+                            "<raw response representation failed: "
+                            f"{type(repr_error).__name__}: "
+                            f"{repr_error}>"
+                        )
+
+                    record["evidence"]["raw_response_repr"] = (
+                        raw_repr
+                    )
+                    record["evidence"]["error_class"] = (
+                        type(error).__name__
+                    )
+                    record["evidence"]["error_detail"] = str(error)
+
+                if raw_hash is None:
+                    # An unencodable response is already sufficient to stop.
+                    # Do not attempt to normalize it into trusted evidence.
+                    (
+                        component_outcome,
+                        rationale_code,
+                        stop_triggered,
+                        stop_reason,
+                    ) = _live_component_result(
+                        transport_status=response.transport_status,
+                        response_contract_valid=False,
+                        selected_label=None,
+                        raw_response_hash=None,
+                    )
+
+                    record["live_component"] = {
+                        "component_outcome": component_outcome,
+                        "rationale_code": rationale_code,
+                    }
+
+                    record["stop"] = {
+                        "triggered": stop_triggered,
+                        "reason": stop_reason,
+                    }
+
+                else:
+                    try:
+                        live_validation = (
+                            validate_j6_live_response(
+                                response.raw_response,
+                                requested_model=requested_model,
+                                resolved_model=response.resolved_model,
+                            )
+                        )
+
+                        record["validation"].update(
+                            asdict(live_validation.validation)
+                        )
+                        record["validation"][
+                            "response_contract_valid"
+                        ] = (
+                            live_validation.response_contract_valid
+                        )
+
+                        record["answer"] = deepcopy(
+                            live_validation.answer
+                        )
+
+                        (
+                            component_outcome,
+                            rationale_code,
+                            stop_triggered,
+                            stop_reason,
+                        ) = _live_component_result(
+                            transport_status=(
+                                response.transport_status
+                            ),
+                            response_contract_valid=(
+                                live_validation.response_contract_valid
+                            ),
+                            selected_label=(
+                                record["answer"]["selected_label"]
+                            ),
+                            raw_response_hash=raw_hash,
+                        )
+
+                        record["live_component"] = {
+                            "component_outcome": component_outcome,
+                            "rationale_code": rationale_code,
+                        }
+
+                        record["stop"] = {
+                            "triggered": stop_triggered,
+                            "reason": stop_reason,
+                        }
+
+                        if (
+                            stop_triggered
+                            and record["evidence"]["error_class"]
+                            is None
+                        ):
+                            record["evidence"]["error_class"] = (
+                                "J6LiveStopCondition"
+                            )
+                            record["evidence"]["error_detail"] = (
+                                stop_reason
+                            )
+
+                    except Exception as error:
+                        # The provider returned successfully. Preserve that
+                        # observation and the already captured raw response.
+                        # This is a local processing failure, not a provider
+                        # execution failure.
+                        record["live_component"] = {
+                            "component_outcome": (
+                                Outcome.INVALID_RESULT.value
+                            ),
+                            "rationale_code": (
+                                "J6_LOCAL_RESPONSE_PROCESSING_ERROR"
+                            ),
+                        }
+
+                        record["stop"] = {
+                            "triggered": True,
+                            "reason": (
+                                "LOCAL_RESPONSE_PROCESSING_ERROR"
+                            ),
+                        }
+
+                        record["evidence"]["error_class"] = (
+                            type(error).__name__
+                        )
+                        record["evidence"]["error_detail"] = (
+                            "LOCAL_RESPONSE_PROCESSING_ERROR: "
+                            + str(error)
+                        )
 
     finally:
         record["provider"]["latency_ms"] = (

@@ -3,6 +3,7 @@
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from src.audit import AuditWriter, EVIDENCE_ROOT, EvidencePersistenceError
 from src.j6_live_runner import run_j6_live_case
@@ -315,6 +316,95 @@ class J6LiveRunnerTests(unittest.TestCase):
 
         self.assertEqual(provider.calls, 1)
 
+    def test_local_validation_failure_preserves_provider_return_and_raw_response(self):
+        raw_response = mock_choice("SUFFICIENT")
+
+        provider = CountingProvider(
+            raw_response,
+            resolved_model="jev-1.13.0",
+            transport_status="OK",
+        )
+
+        temporary_directory, writer = self._writer()
+
+        try:
+            with patch(
+                "src.j6_live_runner.validate_j6_live_response",
+                side_effect=ValueError(
+                    "synthetic local validation failure"
+                ),
+            ):
+                completed = run_j6_live_case(
+                    "J6-PERM-R1",
+                    provider,
+                    writer=writer,
+                    requested_model="jev-latest",
+                )
+
+            record = completed.record
+
+            self.assertEqual(provider.calls, 1)
+            self.assertEqual(
+                record["provider"]["attempt_count"],
+                1,
+            )
+
+            # The provider returned successfully. Local processing failure
+            # must not rewrite that observation as a provider transport error.
+            self.assertEqual(
+                record["provider"]["transport_status"],
+                "OK",
+            )
+            self.assertEqual(
+                record["provider"]["resolved_model"],
+                "jev-1.13.0",
+            )
+
+            # The received response must already have been retained before
+            # local validation was attempted.
+            self.assertIsNotNone(
+                record["evidence"]["raw_response_hash"]
+            )
+            self.assertEqual(
+                record["evidence"]["raw_response"],
+                raw_response,
+            )
+            self.assertIsNone(
+                record["evidence"]["raw_response_repr"]
+            )
+
+            self.assertEqual(
+                record["live_component"]["component_outcome"],
+                Outcome.INVALID_RESULT.value,
+            )
+            self.assertEqual(
+                record["live_component"]["rationale_code"],
+                "J6_LOCAL_RESPONSE_PROCESSING_ERROR",
+            )
+
+            self.assertTrue(
+                record["stop"]["triggered"]
+            )
+            self.assertEqual(
+                record["stop"]["reason"],
+                "LOCAL_RESPONSE_PROCESSING_ERROR",
+            )
+
+            self.assertEqual(
+                record["evidence"]["error_class"],
+                "ValueError",
+            )
+            self.assertIn(
+                "synthetic local validation failure",
+                record["evidence"]["error_detail"],
+            )
+
+            self.assertTrue(
+                completed.evidence_path.exists()
+            )
+
+        finally:
+            temporary_directory.cleanup()
 
 if __name__ == "__main__":
     unittest.main()
