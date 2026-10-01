@@ -116,6 +116,16 @@ def _live_component_result(
         None,
     )
 
+def _safe_repr(value: object) -> str:
+    """Return best-effort attributable text without trusting it as evidence."""
+    try:
+        return repr(value)
+    except Exception as error:
+        return (
+            "<representation failed: "
+            f"{type(error).__name__}: {error}>"
+        )
+
 
 def run_j6_live_case(
     j6_scenario_id: str,
@@ -266,10 +276,15 @@ def run_j6_live_case(
 
         else:
             if not isinstance(response, ProviderResponse):
-                # The provider returned, but the local adapter boundary could
-                # not interpret the returned object as ProviderResponse.
+                # Something returned from the provider boundary, but it is not
+                # a valid ProviderResponse. Preserve what was received as
+                # attributable fallback evidence before stopping.
                 record["provider"]["transport_status"] = (
                     "RETURNED_INVALID_TYPE"
+                )
+
+                record["evidence"]["raw_response_repr"] = _safe_repr(
+                    response
                 )
 
                 record["live_component"] = {
@@ -290,8 +305,8 @@ def run_j6_live_case(
                 )
 
             else:
-                # Preserve the provider-returned transport observation before
-                # any local response validation or normalization occurs.
+                # Preserve provider-returned metadata before any local
+                # validation or response normalization.
                 record["provider"]["transport_status"] = (
                     response.transport_status
                 )
@@ -299,66 +314,87 @@ def run_j6_live_case(
                     response.resolved_model
                 )
 
-                # Preserve the received raw response before local validation.
-                # If it cannot be canonically encoded, retain only an
-                # attributable fallback representation. The fallback never
-                # becomes trusted normalized evidence.
-                try:
-                    raw_hash = content_hash(response.raw_response)
+                raw_snapshot = None
+                raw_hash = None
+                capture_failed = False
 
-                    record["evidence"]["raw_response_hash"] = (
-                        raw_hash
-                    )
-                    record["evidence"]["raw_response"] = deepcopy(
+                # Stage 1: retain a detached snapshot.
+                try:
+                    raw_snapshot = deepcopy(
                         response.raw_response
                     )
 
-                except (TypeError, ValueError) as error:
-                    raw_hash = None
+                except Exception as error:
+                    capture_failed = True
 
-                    try:
-                        raw_repr = repr(response.raw_response)
-                    except Exception as repr_error:
-                        raw_repr = (
-                            "<raw response representation failed: "
-                            f"{type(repr_error).__name__}: "
-                            f"{repr_error}>"
-                        )
-
-                    record["evidence"]["raw_response_repr"] = (
-                        raw_repr
+                    record["evidence"]["raw_response_hash"] = None
+                    record["evidence"]["raw_response"] = None
+                    record["evidence"]["raw_response_repr"] = _safe_repr(
+                        response.raw_response
                     )
                     record["evidence"]["error_class"] = (
                         type(error).__name__
                     )
-                    record["evidence"]["error_detail"] = str(error)
-
-                if raw_hash is None:
-                    # An unencodable response is already sufficient to stop.
-                    # Do not attempt to normalize it into trusted evidence.
-                    (
-                        component_outcome,
-                        rationale_code,
-                        stop_triggered,
-                        stop_reason,
-                    ) = _live_component_result(
-                        transport_status=response.transport_status,
-                        response_contract_valid=False,
-                        selected_label=None,
-                        raw_response_hash=None,
+                    record["evidence"]["error_detail"] = (
+                        "RAW_RESPONSE_CAPTURE_ERROR: "
+                        + str(error)
                     )
 
                     record["live_component"] = {
-                        "component_outcome": component_outcome,
-                        "rationale_code": rationale_code,
+                        "component_outcome": (
+                            Outcome.INVALID_RESULT.value
+                        ),
+                        "rationale_code": (
+                            "J6_LOCAL_RESPONSE_PROCESSING_ERROR"
+                        ),
                     }
 
                     record["stop"] = {
-                        "triggered": stop_triggered,
-                        "reason": stop_reason,
+                        "triggered": True,
+                        "reason": "LOCAL_RESPONSE_PROCESSING_ERROR",
                     }
 
-                else:
+                # Stage 2: canonicalize/hash only after snapshot succeeds.
+                if not capture_failed:
+                    try:
+                        raw_hash = content_hash(raw_snapshot)
+
+                    except Exception as error:
+                        capture_failed = True
+
+                        record["evidence"]["raw_response_hash"] = None
+                        record["evidence"]["raw_response"] = None
+                        record["evidence"]["raw_response_repr"] = (
+                            _safe_repr(response.raw_response)
+                        )
+                        record["evidence"]["error_class"] = (
+                            type(error).__name__
+                        )
+                        record["evidence"]["error_detail"] = (
+                            "RAW_RESPONSE_ENCODING_ERROR: "
+                            + str(error)
+                        )
+
+                        record["live_component"] = {
+                            "component_outcome": (
+                                Outcome.INVALID_RESULT.value
+                            ),
+                            "rationale_code": (
+                                "J6_RESPONSE_EVIDENCE_UNENCODABLE"
+                            ),
+                        }
+
+                        record["stop"] = {
+                            "triggered": True,
+                            "reason": "UNENCODABLE_PROVIDER_RESPONSE",
+                        }
+
+                # Commit trusted raw evidence only when both detached snapshot
+                # and canonical hash are available.
+                if not capture_failed:
+                    record["evidence"]["raw_response_hash"] = raw_hash
+                    record["evidence"]["raw_response"] = raw_snapshot
+
                     try:
                         live_validation = (
                             validate_j6_live_response(
@@ -422,10 +458,9 @@ def run_j6_live_case(
                             )
 
                     except Exception as error:
-                        # The provider returned successfully. Preserve that
-                        # observation and the already captured raw response.
-                        # This is a local processing failure, not a provider
-                        # execution failure.
+                        # Provider transport already succeeded and the raw
+                        # response is retained. This is local processing
+                        # failure, not provider execution failure.
                         record["live_component"] = {
                             "component_outcome": (
                                 Outcome.INVALID_RESULT.value
