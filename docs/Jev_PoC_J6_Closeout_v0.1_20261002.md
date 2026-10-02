@@ -293,6 +293,14 @@ Diagnostic failures such as broken `__str__` or `__repr__` handling cannot suppr
 
 A completed live result is not returned unless evidence persistence succeeds.
 
+### Repository Preservation Boundary
+
+The persisted R1 and X1 live evidence JSON files are intentionally retained as local runtime evidence and excluded from Git by the repository `.gitignore` rule for `evidence/`.
+
+The repository therefore preserves the evidence identifiers, local paths, raw-response hashes, and Human-reviewed observations in this closeout note, but does not include the raw runtime evidence files themselves.
+
+This boundary is intentional and does not indicate evidence-persistence failure.
+
 ---
 
 ## 10. Provisional Integration Finding
