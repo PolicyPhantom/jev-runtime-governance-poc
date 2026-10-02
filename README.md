@@ -1,152 +1,583 @@
-# Jev runtime-governance PoC — J3/J4/J5
+# Jev Runtime-Governance PoC
 
-This isolated PoC tests whether a typed probabilistic decision component can sit
-inside a deterministic shell without becoming an authority. The sole normative
-J0–J2 specification is
-[the frozen baseline](docs/Jev_PoC_J0-J2_Integrated_Baseline_v0.1_20260926.md).
+A bounded derivative validation from the AIBL / SimBench runtime-governance research line.
 
-Current implementation: **accepted J3/J4 plus the J5 offline repeatability layer**.
-The [frozen J4 specification](docs/Jev_PoC_J4_Failure_Injection_Spec_v0.1_20260926.md)
-bounds failure injection; the
-[frozen J5 specification](docs/Jev_PoC_J5_Repeatability_Independent_Review_Spec_v0.1_20260926.md)
-bounds repeatability observation. Independent review is a separate, deferred step.
-The authorized J5-IR-01/02 corrections are implemented; **J5 closure remains HOLD
-pending independent re-review**. See the correction verification in the
-[J5 implementation notes](docs/J5_Implementation.md#authorized-correction-verification-2026-09-27).
-`J0_MOCK_ENTRY = PASS`;
-`J0_LIVE_ENTRY = BLOCKED_API_KEY`. Live Jev evaluation remains blocked and is not
-authorized. The harness neither reads credentials nor imports the installed Jev
-SDK. This is not SimBench integration. No runtime permission, re-entry, execution,
-or state transition is performed. **SEMANTIC_CHECK_PASS is not ALLOW.**
+This repository examines how a probabilistic semantic decision component can be integrated into a deterministic governance shell **without allowing the component itself to become permission, authority, or an autonomous runtime controller**.
+
+The project progressed from frozen offline fixtures and failure injection through bounded live integration with Jev.
+
+Final project status:
+
+`J6 = COMPLETE / FROZEN`
+
+---
+
+## Core Finding
+
+The central boundary examined by this PoC is:
+
+```text
+semantic judgment
+!= component outcome
+!= permission applicability
+!= governance authority
+```
+
+Within the bounded J6 cases, Jev was usable as a probabilistic semantic decision component when surrounded by consumer-side controls for:
+
+- request and fixture identity,
+- deterministic prechecks,
+- response validation,
+- evidence preservation,
+- failure attribution,
+- permission separation,
+- and Human Gate authority.
+
+The provider output was **not** treated as permission, re-entry authorization, or an autonomous governance decision.
+
+A concise bounded interpretation is:
+
+> Jev is useful as a bounded probabilistic semantic decision component, not as an autonomous governance authority.
+
+This is a PoC finding, not a general claim about Jev performance or production suitability.
+
+---
+
+## Relationship to SimBench
+
+This repository is a derivative validation from the broader AIBL / SimBench runtime-governance research line.
+
+SimBench established the research pattern of translating governance concepts into:
+
+```text
+specification
+-> implementation
+-> executable tests
+-> failure injection
+-> evidence
+-> review
+-> correction
+-> Human Gate
+-> theory feedback
+```
+
+The Jev PoC applies that pattern to a provider-managed probabilistic decision component.
+
+It is not part of the SimBench runtime itself and does not claim SimBench production integration.
+
+---
+
+## Research Question
+
+The primary J6 question was not:
+
+> Can Jev produce the expected label?
+
+The primary question was:
+
+> Can a consumer reconstruct a bounded decision path from retained evidence while preventing a probabilistic semantic output from implicitly becoming permission or governance authority?
+
+This distinction is central to the project.
+
+---
+
+## J0-J6 Overview
+
+### J0-J2 — Frozen Baseline
+
+The initial specification defined the bounded semantic task and governance constraints.
+
+Canonical baseline:
+
+[`docs/Jev_PoC_J0-J2_Integrated_Baseline_v0.1_20260926.md`](docs/Jev_PoC_J0-J2_Integrated_Baseline_v0.1_20260926.md)
+
+Semantic labels:
+
+- `SUFFICIENT`
+- `INSUFFICIENT`
+- `CONFLICTING`
+- `UNCERTAIN`
+
+Component outcomes include:
+
+- `SEMANTIC_CHECK_PASS`
+- `SEMANTIC_CHECK_HOLD`
+- `DETERMINISTIC_DENY`
+- `NOT_EVALUATED`
+- `INVALID_RESULT`
+
+A semantic PASS is never equivalent to ALLOW.
+
+---
+
+### J3 — Deterministic Governance Harness
+
+J3 materialized the frozen fixtures into a local executable harness.
+
+The harness separates:
+
+- deterministic prerequisites,
+- provider evaluation,
+- contract validation,
+- component outcome,
+- and persisted evidence.
+
+Provider bypass conditions remain explicit.
+
+---
+
+### J4 — Failure Injection
+
+J4 introduced bounded offline failure injection across provider, contract, encoding, persistence, and deterministic bypass boundaries.
+
+The failure set is documented in:
+
+[`docs/J4_Implementation.md`](docs/J4_Implementation.md)
+
+The tested J4 scope produced:
+
+```text
+FAIL_OPEN_COUNT = 0
+RETRY_COUNT_BEYOND_FIRST = 0
+EVIDENCE_PARTIAL_COMMIT_FINDINGS = 0
+```
+
+These counters apply only to the bounded tested cases.
+
+---
+
+### J5 — Repeatability Observation
+
+J5 added scripted repeatability machinery without converting probability or confidence into governance authority.
+
+The repeatability layer observes:
+
+- label variance,
+- probability variance,
+- confidence variance,
+- input identity,
+- provider bypass,
+- and analysis-only threshold crossings.
+
+Analysis thresholds do not alter the deterministic component gate.
+
+J5 documentation:
+
+[`docs/J5_Implementation.md`](docs/J5_Implementation.md)
+
+---
+
+### J6 — Permission Boundary and Bounded Live Integration
+
+J6 extended the PoC from semantic component behavior to the boundary between:
+
+```text
+semantic judgment
+component outcome
+decision reconstruction
+permission applicability
+governance authority
+```
+
+Frozen J6 specification:
+
+[`docs/Jev_PoC_J6_Specification_v0.3_20260930.md`](docs/Jev_PoC_J6_Specification_v0.3_20260930.md)
+
+Live execution plan:
+
+[`docs/Jev_PoC_J6_Live_Execution_Plan_v0.1_20261001.md`](docs/Jev_PoC_J6_Live_Execution_Plan_v0.1_20261001.md)
+
+Case map:
+
+[`docs/Jev_PoC_J6_Live_Case_Map_v0.1_20261001.md`](docs/Jev_PoC_J6_Live_Case_Map_v0.1_20261001.md)
+
+Final closeout note:
+
+[`docs/Jev_PoC_J6_Closeout_v0.1_20261002.md`](docs/Jev_PoC_J6_Closeout_v0.1_20261002.md)
+
+---
+
+## J6 Bounded Live Observations
+
+Exactly two Human-Gated live semantic calls were executed.
+
+Conditions:
+
+```text
+R1 maximum calls = 1
+X1 maximum calls = 1
+provider retry = 0
+runner retry = none
+automatic rerun = prohibited
+repeatability sweep = not performed
+additional exploratory calls = prohibited
+```
+
+### R1 — Restoration Case
+
+Mapping:
+
+```text
+J6-PERM-R1 -> F-01
+```
+
+Observed result:
+
+```text
+requested model        = jev-latest
+resolved model         = jev-1.13.0
+transport              = OK
+attempt count          = 1
+
+semantic judgment      = SUFFICIENT
+component outcome      = SEMANTIC_CHECK_PASS
+decision reconstruction= RECONSTRUCTED
+permission             = NOT_SUPPORTED
+
+permission reason      = PA_RESTORATION_CONDITION_UNMET
+STOP                    = false
+```
+
+Observed semantic probabilities:
+
+```text
+SUFFICIENT   = 0.86
+INSUFFICIENT = 0.11
+UNCERTAIN    = 0.03
+CONFLICTING  = 0.00
+confidence   = 0.82
+```
+
+---
+
+### X1 — Contrast Restriction Case
+
+Mapping:
+
+```text
+J6-PERM-X1 -> F-02
+```
+
+Observed result:
+
+```text
+requested model        = jev-latest
+resolved model         = jev-1.13.0
+transport              = OK
+attempt count          = 1
+
+semantic judgment      = INSUFFICIENT
+component outcome      = SEMANTIC_CHECK_HOLD
+decision reconstruction= RECONSTRUCTED
+permission             = NOT_SUPPORTED
+
+permission reason      = PA_EXPLICIT_EXCLUSION
+STOP                    = false
+```
+
+Observed semantic probabilities:
+
+```text
+INSUFFICIENT = 1.00
+SUFFICIENT   = 0.00
+UNCERTAIN    = 0.00
+CONFLICTING  = 0.00
+confidence   = 1.00
+```
+
+These are case-specific observations from single bounded calls and are not statistical performance claims.
+
+---
+
+## Cross-Case Interpretation
+
+The two live cases produced different semantic outcomes:
+
+```text
+R1:
+SUFFICIENT
+-> SEMANTIC_CHECK_PASS
+-> RECONSTRUCTED
+-> NOT_SUPPORTED
+
+X1:
+INSUFFICIENT
+-> SEMANTIC_CHECK_HOLD
+-> RECONSTRUCTED
+-> NOT_SUPPORTED
+```
+
+The semantic component changed its judgment.
+
+The permission layer remained independently governed by different permission conditions.
+
+This is consistent with the J6 design objective:
+
+```text
+semantic judgment
+!= component outcome
+!= permission applicability
+!= governance authority
+```
+
+The provider output did not itself grant, restore, revoke, or authorize permission.
+
+---
 
 ## Architecture
 
+The overall structure is intentionally layered.
+
 ```text
-Frozen Fixture → Deterministic Precheck → Provider Adapter
-  → Contract Validation → Semantic Signal → Deterministic Component Gate
-  → Audit Record
+Frozen Fixture / Scenario
+        |
+        v
+Deterministic Precheck
+        |
+        v
+Probabilistic Semantic Component
+        |
+        v
+Consumer-Side Validation
+        |
+        v
+Component Outcome
+        |
+        v
+Evidence Preservation
+        |
+        v
+Decision Reconstruction
+        |
+        v
+Permission Assessment
+        |
+        v
+Human / Governance Authority
 ```
 
-- `src/precheck.py` checks schema fields, artifact presence, binding, integrity,
-  prohibition, and fixture version/hash against the catalog. Required structure
-  and schema must be valid, and frozen fixture identity must be established, before
-  a prohibition can produce `DETERMINISTIC_DENY`. Malformed or unverified fixtures
-  produce `NOT_EVALUATED`, including when they contain `prohibited: true`. This is
-  a bounded J3 ordering rule, not a general mixed-failure precedence claim.
-  Failed structural or governance prerequisites skip
-  the provider. Missing substantive elements within a present, structurally valid
-  evidence submission remain inputs to semantic assessment.
-- `src/providers.py` defines a protocol and `MockProvider`, which returns an
-  explicitly scripted response without examining evidence,
-  expected bands, or notes. There is no authorization logic or fallback in it.
-- `src/failure_provider.py` supplies J4's local `FailureProvider`. It raises a
-  configured exception or returns an injected invalid result without reading
-  the request. HTTP status simulations are local exceptions, not HTTP calls.
-- `src/sequence_provider.py` supplies J5's `ScriptedSequenceProvider`. It consumes
-  one supplied response per call and fails explicitly on exhaustion. It never
-  reads the request and is a test instrument, not a model simulator.
-- `src/repeatability.py` runs one frozen fixture repeatedly through the ordinary
-  harness, captures actual provider-visible requests, and persists every decision
-  plus a separate group summary sourced from committed decision JSON snapshots.
-  `src/repeatability_analysis.py` observes variance
-  and analysis-only threshold crossings after decisions are persisted. Input drift
-  invalidates the group and suppresses stability statistics. Deterministic bypass
-  is excluded from model repeatability interpretation.
-- `src/contracts.py` validates the local `choice` contract: one allowed label,
-  probabilities for all four labels, and explicit confidence/model handling.
-- `src/gate.py` permits `SUFFICIENT` to become `SEMANTIC_CHECK_PASS` only after
-  deterministic and contract checks pass. Other valid labels yield
-  `SEMANTIC_CHECK_HOLD`; invalid provider/contract results yield `INVALID_RESULT`.
-  Non-PASS precheck outcomes and rationales are preserved without reinterpreting
-  prohibition. The defensive check after PASS rejects inconsistent prerequisites;
-  it does not create a new deterministic DENY.
-- `src/harness.py` makes at most one provider attempt per decision, records
-  requested/resolved model identities, and never retries. Bypasses record zero
-  attempts, a null resolved model, and `NOT_CALLED`.
-- `src/audit.py` writes UTF-8 JSON under ignored local `evidence/`. It flushes and
-  syncs a `.pending-*.tmp` file, closes it, then atomically renames it to `.json`.
-  Only `.json` files represent persisted records. Persistence failure raises
-  `EvidencePersistenceError` (`NOT COMMITTABLE`), and the runner exits unsuccessfully.
+The probabilistic component is intentionally bounded inside a deterministic governance structure.
 
-## Local setup and execution
+---
 
-Python 3.11 or newer is required; verification used Python 3.14.3. From the
-repository directory in PowerShell:
+## Provider and Failure Boundaries
+
+J6 distinguishes between:
+
+- provider execution failure,
+- local response-processing failure,
+- raw-response capture failure,
+- response encoding failure,
+- diagnostic-rendering failure,
+- and evidence persistence failure.
+
+A successful provider transport observation is not rewritten as a provider failure merely because local processing later fails.
+
+Where trusted raw-response evidence cannot be captured or encoded, the result fails closed.
+
+Fallback representations remain explicitly untrusted.
+
+Diagnostic failures such as broken `__str__` or `__repr__` behavior cannot suppress STOP state or bypass intended evidence persistence.
+
+A completed live result is not returned unless evidence persistence succeeds.
+
+---
+
+## Model Identity
+
+Both bounded live calls requested:
+
+```text
+jev-latest
+```
+
+The provider reported:
+
+```text
+jev-1.13.0
+```
+
+J6 records this as:
+
+```text
+model_identity_status = MISMATCH
+```
+
+Model identity is treated as a separate observation.
+
+A requested/resolved mismatch does not automatically invalidate an otherwise structurally valid J6 response.
+
+The provider-reported resolved model is retained as consumer-visible evidence.
+
+It is not treated as independent proof of provider-internal execution state.
+
+---
+
+## Evidence Preservation Boundary
+
+Runtime evidence is written locally under:
+
+```text
+evidence/
+```
+
+The directory is intentionally excluded from Git through `.gitignore`.
+
+The R1 and X1 raw runtime evidence JSON files therefore remain local evidence artifacts.
+
+The repository preserves:
+
+- evidence identifiers,
+- local evidence paths,
+- raw-response hashes,
+- scenario identifiers,
+- reviewed observations,
+- and closeout findings,
+
+but does not publish the raw runtime evidence JSON files themselves.
+
+This is an intentional repository boundary and does not indicate evidence-persistence failure.
+
+---
+
+## Verification
+
+Final full regression before closeout:
+
+```text
+124 / 124 PASS
+```
+
+The test suite covers the accumulated J3-J6 offline implementation, including:
+
+- deterministic prechecks,
+- semantic fixture handling,
+- contract validation,
+- failure injection,
+- persistence failure,
+- repeatability machinery,
+- J6 permission boundaries,
+- live-response validation,
+- live-runner failure attribution,
+- broken diagnostic rendering,
+- raw-response capture failures,
+- model identity separation,
+- and provider attempt limits.
+
+The regression suite is offline and deterministic.
+
+---
+
+## Local Test Execution
+
+Python 3.11 or newer is required.
+
+Verification was performed with Python 3.14.3.
+
+From PowerShell:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
-.\.venv\Scripts\python.exe -m src --fixture F-01 --label SUFFICIENT
-.\.venv\Scripts\python.exe -m src --fixture F-05 --label SUFFICIENT
 ```
 
-Skip the first command if the virtual environment already exists. J3–J5 need only
-the standard library: no package installation or network access is required.
-Existing `requirements.txt` and `requirements-lock.txt` are unchanged and are not
-needed to run the mock harness. No API key setup is required.
+The ordinary offline regression suite does not require a Jev API key.
 
-The `--label` argument is required: it is the caller's scripted mock answer, not
-a model assessment. F-05 returns `DETERMINISTIC_DENY` even when that argument is
-`SUFFICIENT`; F-06 returns `NOT_EVALUATED` without calling the provider. A successful
-CLI run reports `EVIDENCE_PERSISTED`, the component outcome, and the local record
-path. That status says nothing about runtime permission.
+---
 
-## Fixtures and local contract choices
+## Live Provider Code
 
-All eight fixtures live in `fixtures/semantic/`. Their versions and canonical
-JSON hashes are pinned in `fixtures/manifest.json`, which also records the
-unchanged baseline's byte hash. Unknown IDs, changed versions, or modified fixture
-content cannot reach provider evaluation. This is a local change-detection check,
-not a cryptographic trust anchor; the manifest is reviewed repository content.
+The repository retains the bounded J6 provider adapter and R1/X1 entrypoints used during the Human-Gated study:
 
-[J3 materialization notes](docs/J3_Materialization.md) document how abbreviated
-paper fixtures become machine-readable, including which prerequisites are
-synthetic and which missingness cases short-circuit. These notes do not supersede
-the frozen baseline and record the human-review clarification of structural versus
-semantic missingness. Provider-eligible fixtures are F-01, F-02, F-03, F-04, and
-F-07. F-05 (prohibition), F-06 (absent artifact), and F-08 (unresolved binding)
-bypass the provider. F-02/F-03 use corrected materialization version `v0.1.1` with
-new hashes and change reasons; their submitted evidence and expected labels are
-unchanged. Future fixture changes require a new version, change reason, and hash.
-Repeat groups R1–R4 are retained, including provider-eligible F-03 in R2. J5
-exercises them with scripted offline sequences; it does not measure Jev itself.
+```text
+src/j6_live_provider.py
+j6_live_r1.py
+j6_live_x1.py
+```
 
-The local adapter contract uses a probability object with exactly `SUFFICIENT`,
-`INSUFFICIENT`, `CONFLICTING`, and `UNCERTAIN` keys. Values must be finite numbers
-in `[0, 1]`, excluding booleans, and sum to one within `1e-9` numerical tolerance.
-This tolerance is structural, not a confidence threshold. Confidence may be
-absent, null, or a finite number in `[0, 1]`; its status is recorded, and there is
-no production confidence cutoff. A missing/mismatched resolved model invalidates
-the controlled result. This contract does not claim to reproduce live SDK output.
+They are retained for implementation provenance.
 
-Mock request metadata identifies `standard-library-mock`, version `j3-v0.1`, and
-model `mock-choice-v0.1`. `retry_policy` records `enabled: false, max_attempts: 1`.
-`timeout: null` means no transport timeout applies to the synchronous in-process
-mock; it is not a future live-provider timeout policy. All timestamps are local
-harness timestamps in ISO 8601 UTC with explicit `+00:00` offsets. Hashes use
-UTF-8 canonical JSON with sorted keys and compact separators. `state_hash` covers
-the suspension cause, required/submitted evidence, and deterministic flags;
-`question_hash` covers the semantic question. `raw_response_hash` covers the
-mock's returned JSON object, including unknown fields. Unencodable responses
-produce `INVALID_RESULT` and an explicit encoding error with a null response hash.
+J6 is now:
 
-Tests are deterministic and offline. They write temporary records only below
-ignored `evidence/` and clean their own temporary directories. The full test
-command includes the accepted J3/J4 suites, JR-01–JR-10, and J5 support checks,
-with required variants expressed as subtests. It prints `J4_SUMMARY` and
-`J5_SUMMARY` with coverage and observed invariant counters. The runner can stop
-at the first failure by adding `-f`.
+```text
+COMPLETE / FROZEN
+```
 
-[J4 implementation notes](docs/J4_Implementation.md) map every JF case to its test.
-`FAIL_OPEN = 0` refers only to the tested J4 failure set and successfully returned
-or committed decisions. A computed candidate whose persistence fails is NOT
-COMMITTABLE. Retry remains OFF. These simulations make no claim about live
-provider reliability, semantic quality, or production readiness. This is not
-SimBench integration. Live Jev remains unauthorized.
+The frozen study does not authorize additional J6 live calls, repeatability runs, or exploratory provider calls.
 
-[J5 implementation notes](docs/J5_Implementation.md) describe the runner API,
-request identity, summary fields, and JR traceability. Analysis thresholds are
-observation cutoffs only: they are not governance thresholds, permission, or
-calibration claims. Low variance implies neither correctness, reliability, nor
-authority. Independent review must take place in a fresh session after this
-implementation is accepted; it has not been performed here. J6 is not authorized.
+---
+
+## Claim Boundaries
+
+This repository does **not** establish:
+
+- general Jev accuracy,
+- Jev superiority over other decision models,
+- statistical reliability,
+- calibration quality,
+- production readiness,
+- production safety,
+- certification suitability,
+- autonomous governance capability,
+- generalization across domains,
+- provider-internal execution verification,
+- universal permission semantics,
+- or production runtime control suitability.
+
+Only two Human-Gated J6 live semantic calls were executed.
+
+Each live scenario was executed exactly once.
+
+The project is a bounded integration study.
+
+---
+
+## Research Interpretation
+
+The PoC suggests that the difficult part of integrating a probabilistic decision component is not merely obtaining a useful semantic judgment.
+
+The harder integration problem is preserving the boundaries around that judgment:
+
+```text
+What was observed?
+What was validated?
+What evidence was retained?
+Where did a failure occur?
+What permission conditions apply?
+Who retains authority over state transition?
+```
+
+This supports studying probabilistic decision components as bounded elements inside deterministic governance structures rather than as substitutes for governance authority.
+
+---
+
+## Repository Status
+
+```text
+J0-J2 baseline       FROZEN
+J3                   COMPLETE
+J4                   COMPLETE
+J5                   COMPLETE
+J6                   COMPLETE / FROZEN
+
+Final regression     124 / 124 PASS
+J6 live calls        2 total
+Additional calls     0
+Runtime evidence     local / Git-excluded
+```
+
+Final J6 closeout documentation:
+
+[`docs/Jev_PoC_J6_Closeout_v0.1_20261002.md`](docs/Jev_PoC_J6_Closeout_v0.1_20261002.md)
+
+---
+
+## Scope
+
+This repository is a research artifact.
+
+It is intended to make bounded runtime-governance assumptions, failure boundaries, evidence handling, and permission separation inspectable.
+
+It is not production control software, certification evidence, or a claim of proven AI safety.
+
+```
