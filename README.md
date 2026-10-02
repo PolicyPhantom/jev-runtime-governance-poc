@@ -47,6 +47,10 @@ This is a PoC finding, not a general claim about Jev performance or production s
 
 This repository is a derivative validation from the broader AIBL / SimBench runtime-governance research line.
 
+Parent research repository:
+
+[AIBL Physical AI Runtime-Governance SimBench](https://github.com/PolicyPhantom/aibl-physical-ai-runtime-governance-simbench)
+
 SimBench established the research pattern of translating governance concepts into:
 
 ```text
