@@ -583,5 +583,4 @@ This repository is a research artifact.
 It is intended to make bounded runtime-governance assumptions, failure boundaries, evidence handling, and permission separation inspectable.
 
 It is not production control software, certification evidence, or a claim of proven AI safety.
-
 ```
