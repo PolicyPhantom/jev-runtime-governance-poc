@@ -1,5 +1,7 @@
 # Jev Runtime-Governance PoC
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23189584.svg)](https://doi.org/10.5281/zenodo.23189584)
+
 A bounded derivative validation from the AIBL / SimBench runtime-governance research line.
 
 This repository examines how a probabilistic semantic decision component can be integrated into a deterministic governance shell **without allowing the component itself to become permission, authority, or an autonomous runtime controller**.

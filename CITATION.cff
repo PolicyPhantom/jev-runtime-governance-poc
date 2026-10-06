@@ -8,4 +8,5 @@ version: 1.0.0
 date-released: 2026-10-06
 license: MIT
 repository-code: "https://github.com/PolicyPhantom/jev-runtime-governance-poc"
+doi: "10.5281/zenodo.23189584"
 abstract: "A bounded runtime-governance proof of concept examining how a probabilistic semantic decision component can be integrated into a deterministic governance shell without treating the component as permission, governance authority, or an autonomous runtime controller."
