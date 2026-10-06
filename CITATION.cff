@@ -1,0 +1,11 @@
+﻿cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "Jev Runtime-Governance PoC"
+authors:
+  - family-names: "Inoue"
+    given-names: "Ryoji"
+version: 1.0.0
+date-released: 2026-10-06
+license: MIT
+repository-code: "https://github.com/PolicyPhantom/jev-runtime-governance-poc"
+abstract: "A bounded runtime-governance proof of concept examining how a probabilistic semantic decision component can be integrated into a deterministic governance shell without treating the component as permission, governance authority, or an autonomous runtime controller."
